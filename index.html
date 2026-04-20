@@ -3,682 +3,436 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daycare Meal Buddy</title>
+<title>NourishLittle — Toddler Meal Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #FDF6EC;
-    --warm-white: #FFFBF5;
-    --sage: #7A9E7E;
-    --sage-light: #B8D4BB;
-    --sage-pale: #EBF3EC;
-    --terracotta: #D4735A;
-    --terracotta-light: #F2B8A8;
-    --terracotta-pale: #FDF0EC;
-    --goldenrod: #D4A84B;
-    --goldenrod-pale: #FDF5E0;
-    --ink: #2C2416;
-    --muted: #7A6E62;
-    --border: #E8DDD0;
-    --shadow: rgba(44,36,22,0.08);
-  }
+:root{--cream:#FDF6EC;--warm-white:#FFFBF5;--sage:#7A9E7E;--sage-light:#B8D4BB;--sage-pale:#EBF3EC;--terracotta:#D4735A;--terracotta-light:#F2B8A8;--terracotta-pale:#FDF0EC;--goldenrod:#D4A84B;--goldenrod-pale:#FDF5E0;--ink:#2C2416;--muted:#7A6E62;--border:#E8DDD0;--shadow:rgba(44,36,22,0.08);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ONBOARDING */
+.modal-overlay{position:fixed;inset:0;background:rgba(44,36,22,0.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-box{background:var(--warm-white);border-radius:20px;padding:26px 22px;max-width:460px;width:100%;max-height:92vh;overflow-y:auto;}
+.modal-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.modal-icon{width:36px;height:36px;background:var(--sage);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.modal-top h2{font-family:'Fraunces',serif;font-size:19px;font-weight:700;}
+.modal-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:18px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:5px;display:block;}
+.form-input{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--cream);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--sage);}
+.chip-group{display:flex;flex-wrap:wrap;gap:7px;}
+.chip-opt{padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;background:var(--warm-white);color:var(--muted);transition:all 0.15s;user-select:none;}
+.chip-opt.sel{background:var(--sage);border-color:var(--sage);color:white;font-weight:500;}
+.chip-opt:hover:not(.sel){border-color:var(--sage-light);color:var(--sage);}
+.btn-start{width:100%;background:var(--sage);color:white;border:none;border-radius:12px;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:6px;transition:background 0.15s;}
+.btn-start:hover{background:#6A8E6E;}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-  }
+/* HEADER */
+header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-icon{width:34px;height:34px;background:var(--sage);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-text h1{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ink);line-height:1.1;}
+.logo-text p{font-size:10px;color:var(--muted);}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.week-badge{background:var(--sage-pale);color:var(--sage);border:1px solid var(--sage-light);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;}
+.date-display .day-name{font-family:'Fraunces',serif;font-size:13px;font-weight:600;color:var(--ink);}
+.date-display .date-str{font-size:10px;color:var(--muted);}
+.btn-edit{background:none;border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-edit:hover{border-color:var(--sage-light);color:var(--sage);}
 
-  /* ── HEADER ── */
-  header {
-    background: var(--warm-white);
-    border-bottom: 1.5px solid var(--border);
-    padding: 18px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .logo-icon {
-    width: 40px; height: 40px;
-    background: var(--sage);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-  }
-  .logo-text h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.1;
-  }
-  .logo-text p {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 300;
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .date-display {
-    text-align: right;
-  }
-  .date-display .day-name {
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .date-display .date-str {
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .week-badge {
-    background: var(--sage-pale);
-    color: var(--sage);
-    border: 1px solid var(--sage-light);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 12px;
-    font-weight: 500;
-  }
+/* MAIN */
+.app{max-width:860px;margin:0 auto;padding:12px 14px 20px;}
 
-  /* ── MAIN LAYOUT ── */
-  .app { max-width: 900px; margin: 0 auto; padding: 24px 20px; }
+/* TOP STRIP */
+.top-strip{display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:12px;align-items:start;}
+@media(max-width:580px){.top-strip{grid-template-columns:1fr;}}
+.day-nav-label{font-size:9px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.days-row{display:flex;gap:4px;flex-wrap:wrap;}
+.day-btn{border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;background:var(--warm-white);color:var(--muted);transition:all 0.15s;}
+.day-btn:hover{border-color:var(--sage-light);color:var(--sage);}
+.day-btn.active{background:var(--sage);border-color:var(--sage);color:white;font-weight:500;}
 
-  /* ── DAYCARE MEALS TODAY ── */
-  .section-label {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
+.dc-card{background:var(--warm-white);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;}
+.dc-title{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:7px;}
+.dc-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+@media(max-width:420px){.dc-row{grid-template-columns:1fr;}}
+.dc-chip{border-radius:7px;padding:6px 9px;}
+.dc-chip.am{background:var(--goldenrod-pale);border:1px solid #E8CC85;}
+.dc-chip.lunch{background:var(--sage-pale);border:1px solid var(--sage-light);}
+.dc-chip.pm{background:var(--terracotta-pale);border:1px solid var(--terracotta-light);}
+.dc-lbl{font-size:9px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:2px;}
+.dc-chip.am .dc-lbl{color:#A07820;}
+.dc-chip.lunch .dc-lbl{color:var(--sage);}
+.dc-chip.pm .dc-lbl{color:var(--terracotta);}
+.dc-text{font-size:11px;color:var(--ink);line-height:1.3;}
 
-  .daycare-card {
-    background: var(--warm-white);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 24px;
-  }
-  .daycare-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .daycare-title {
-    font-family: 'Fraunces', serif;
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .daycare-subtitle {
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .meals-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  .meal-chip {
-    border-radius: 10px;
-    padding: 10px 12px;
-  }
-  .meal-chip.am  { background: var(--goldenrod-pale); border: 1px solid #E8CC85; }
-  .meal-chip.lunch { background: var(--sage-pale); border: 1px solid var(--sage-light); }
-  .meal-chip.pm  { background: var(--terracotta-pale); border: 1px solid var(--terracotta-light); }
-  .meal-chip-label {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .meal-chip.am .meal-chip-label { color: #A07820; }
-  .meal-chip.lunch .meal-chip-label { color: var(--sage); }
-  .meal-chip.pm .meal-chip-label { color: var(--terracotta); }
-  .meal-chip-text { font-size: 12px; color: var(--ink); line-height: 1.4; }
+/* RECO CARDS */
+.reco-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:560px){.reco-grid{grid-template-columns:1fr;}}
+.reco-card{border-radius:14px;padding:14px;border:1.5px solid transparent;}
+.reco-card.bf{background:#FFF8E6;border-color:#E8CC85;}
+.reco-card.dn{background:#EEF4F8;border-color:#A8C4D8;}
+.rc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:6px;}
+.rc-type{font-size:9px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:2px;}
+.reco-card.bf .rc-type{color:#A07820;}
+.reco-card.dn .rc-type{color:#4A7A9B;}
+.rc-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700;line-height:1.2;color:var(--ink);}
+.rc-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.rc-motivation{font-size:11px;font-weight:500;margin-bottom:5px;line-height:1.4;}
+.reco-card.bf .rc-motivation{color:#7A6020;}
+.reco-card.dn .rc-motivation{color:#3A6478;}
+.rc-why{font-size:11px;color:var(--muted);line-height:1.45;margin-bottom:8px;}
+.ntag{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:500;}
+.reco-card.bf .ntag{background:rgba(212,168,75,0.15);color:#A07820;}
+.reco-card.dn .ntag{background:rgba(74,122,155,0.15);color:#4A7A9B;}
+.ntags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.recipe-btn{font-size:10px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:6px;display:block;}
+.reco-card.bf .recipe-btn{color:#A07820;}
+.reco-card.dn .recipe-btn{color:#4A7A9B;}
+.recipe-box{background:rgba(255,255,255,0.75);border-radius:9px;padding:9px 11px;margin-bottom:9px;display:none;}
+.recipe-box.open{display:block;}
+.recipe-title{font-size:11px;font-weight:500;color:var(--ink);margin-bottom:4px;}
+.recipe-steps{font-size:10px;color:var(--muted);line-height:1.6;padding-left:14px;}
+.recipe-steps li{margin-bottom:2px;}
+.alt-lbl{font-size:9px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.alt-item{background:rgba(255,255,255,0.55);border-radius:7px;padding:6px 9px;cursor:pointer;border:1px solid transparent;transition:all 0.12s;margin-bottom:4px;}
+.alt-item:hover{border-color:var(--sage-light);}
+.alt-name{font-size:11px;font-weight:500;color:var(--ink);}
+.alt-note{font-size:10px;color:var(--muted);margin-top:1px;}
+.alt-recipe{font-size:10px;line-height:1.5;margin-top:4px;padding-top:4px;border-top:1px solid var(--border);display:none;}
+.reco-card.bf .alt-recipe{color:#7A6020;}
+.reco-card.dn .alt-recipe{color:#3A6478;}
+.alt-item.exp .alt-recipe{display:block;}
 
-  /* ── RECOMMENDATIONS ── */
-  .reco-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  @media (max-width: 600px) { .reco-grid { grid-template-columns: 1fr; } .meals-row { grid-template-columns: 1fr; } }
+/* BOTTOM ROW */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:560px){.bottom-row{grid-template-columns:1fr;}}
+.balance-card{background:var(--warm-white);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;}
+.balance-title{font-family:'Fraunces',serif;font-size:12px;font-weight:600;margin-bottom:9px;}
+.b-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.b-lbl{font-size:10px;width:56px;color:var(--muted);flex-shrink:0;}
+.b-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.b-fill{height:100%;border-radius:3px;transition:width 0.7s cubic-bezier(.4,0,.2,1);}
+.b-pct{font-size:9px;color:var(--muted);width:26px;text-align:right;flex-shrink:0;}
+.tip-card{background:var(--sage-pale);border:1px solid var(--sage-light);border-radius:12px;padding:12px 14px;display:flex;gap:8px;}
+.tip-icon-wrap{font-size:15px;flex-shrink:0;margin-top:1px;}
+.tip-lbl{font-size:9px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--sage);margin-bottom:3px;}
+.tip-text{font-size:11px;color:#3A5C3D;line-height:1.5;}
 
-  .reco-card {
-    border-radius: 16px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-    border: 1.5px solid transparent;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .reco-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--shadow); }
-
-  .reco-card.breakfast {
-    background: linear-gradient(135deg, #FFF8E8 0%, #FDF2D6 100%);
-    border-color: #E8CC85;
-  }
-  .reco-card.dinner {
-    background: linear-gradient(135deg, #EEF4F8 0%, #E2EDF5 100%);
-    border-color: #A8C4D8;
-  }
-
-  .reco-card-icon {
-    font-size: 28px;
-    margin-bottom: 10px;
-    display: block;
-  }
-  .reco-card-type {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .reco-card.breakfast .reco-card-type { color: #A07820; }
-  .reco-card.dinner .reco-card-type { color: #4A7A9B; }
-
-  .reco-card-title {
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    line-height: 1.2;
-  }
-  .reco-card-why {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-  .nutrition-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-  .ntag {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-  .reco-card.breakfast .ntag { background: rgba(212,168,75,0.15); color: #A07820; }
-  .reco-card.dinner .ntag { background: rgba(74,122,155,0.15); color: #4A7A9B; }
-
-  /* ── AI GENERATE BUTTON ── */
-  .generate-section {
-    margin-bottom: 24px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .btn-generate {
-    background: var(--sage);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 22px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.15s, transform 0.1s;
-  }
-  .btn-generate:hover { background: #6A8E6E; transform: translateY(-1px); }
-  .btn-generate:disabled { background: #B8B8B8; cursor: not-allowed; transform: none; }
-  .btn-secondary {
-    background: var(--warm-white);
-    color: var(--ink);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 11px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    cursor: pointer;
-    transition: border-color 0.15s;
-  }
-  .btn-secondary:hover { border-color: var(--sage-light); }
-
-  .spinner {
-    display: inline-block;
-    width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── NUTRITION BALANCE ── */
-  .balance-card {
-    background: var(--warm-white);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 24px;
-  }
-  .balance-title {
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 14px;
-  }
-  .balance-bars { display: flex; flex-direction: column; gap: 10px; }
-  .balance-row { display: flex; align-items: center; gap: 10px; }
-  .balance-label { font-size: 12px; width: 80px; color: var(--muted); flex-shrink: 0; }
-  .balance-track {
-    flex: 1;
-    height: 8px;
-    background: var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .balance-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.8s cubic-bezier(.4,0,.2,1);
-  }
-  .balance-pct { font-size: 11px; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
-
-  /* ── WEEK NAV ── */
-  .week-nav {
-    background: var(--warm-white);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-  }
-  .week-nav-title {
-    font-family: 'Fraunces', serif;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-  .days-row {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-  .day-btn {
-    flex-shrink: 0;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 8px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    cursor: pointer;
-    background: var(--warm-white);
-    color: var(--muted);
-    transition: all 0.15s;
-  }
-  .day-btn:hover { border-color: var(--sage-light); color: var(--sage); }
-  .day-btn.active {
-    background: var(--sage);
-    border-color: var(--sage);
-    color: white;
-    font-weight: 500;
-  }
-
-  /* ── TIPS ── */
-  .tip-strip {
-    background: var(--sage-pale);
-    border: 1px solid var(--sage-light);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 12px;
-    color: #4A6B4E;
-    line-height: 1.5;
-    display: flex;
-    gap: 8px;
-  }
-  .tip-icon { flex-shrink: 0; font-size: 14px; }
-
-  /* ── ECHO SHOW BANNER ── */
-  .echo-banner {
-    background: linear-gradient(135deg, #2C2416 0%, #3D3020 100%);
-    border-radius: 16px;
-    padding: 18px 20px;
-    color: white;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .echo-banner-icon { font-size: 28px; flex-shrink: 0; }
-  .echo-banner-text h3 { font-family: 'Fraunces', serif; font-size: 14px; margin-bottom: 3px; }
-  .echo-banner-text p { font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1.4; }
-
-  /* ── ERROR ── */
-  .error-strip {
-    background: var(--terracotta-pale);
-    border: 1px solid var(--terracotta-light);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--terracotta);
-    margin-bottom: 14px;
-  }
-
-  /* fade-in */
-  .fade-in { animation: fadeUp 0.4s ease both; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+/* FOOTER */
+.footer-banner{background:var(--ink);border-radius:12px;padding:12px 16px;color:white;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.footer-banner h3{font-family:'Fraunces',serif;font-size:12px;margin-bottom:2px;}
+.footer-banner p{font-size:10px;color:rgba(255,255,255,0.55);line-height:1.4;}
+.fade-in{animation:fadeUp 0.3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
 
+<!-- ONBOARDING MODAL -->
+<div class="modal-overlay" id="onboardModal">
+  <div class="modal-box">
+    <div class="modal-top"><div class="modal-icon">🌱</div><h2>NourishLittle</h2></div>
+    <p class="modal-sub">2 minutes to set up. We'll build a breakfast &amp; dinner plan that works around whatever your child's school is already serving.</p>
+    <div class="form-group"><label class="form-label">Child's name</label><input class="form-input" id="childName" placeholder="e.g. Aryan"/></div>
+    <div class="form-group">
+      <label class="form-label">Age</label>
+      <div class="chip-group" id="ageG">
+        <div class="chip-opt sel" data-v="1-2">1–2 yrs</div><div class="chip-opt" data-v="2-3">2–3 yrs</div><div class="chip-opt" data-v="3-5">3–5 yrs</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Diet type</label>
+      <div class="chip-group" id="dietG">
+        <div class="chip-opt sel" data-v="veg">Vegetarian</div><div class="chip-opt" data-v="nonveg">Non-veg</div><div class="chip-opt" data-v="vegan">Vegan</div><div class="chip-opt" data-v="egg">Eggetarian</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cuisine preference</label>
+      <div class="chip-group" id="cuisineG">
+        <div class="chip-opt" data-v="north">North Indian</div><div class="chip-opt" data-v="south">South Indian</div><div class="chip-opt sel" data-v="balanced">Balanced mix</div><div class="chip-opt" data-v="western">Western</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Allergies / foods to avoid</label><input class="form-input" id="allergies" placeholder="e.g. nuts, dairy, gluten"/></div>
+    <div class="form-group"><label class="form-label">Foods he/she loves</label><input class="form-input" id="loves" placeholder="e.g. banana oats, boiled eggs, avocado toast"/></div>
+    <div class="form-group"><label class="form-label">Foods he/she dislikes</label><input class="form-input" id="dislikes" placeholder="e.g. bitter gourd, mushrooms"/></div>
+    <div class="form-group"><label class="form-label">School / daycare name</label><input class="form-input" id="schoolName" placeholder="e.g. Cedar Sprouts Preschool"/></div>
+    <button class="btn-start" onclick="saveProfile()">Build my meal plan →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
 <header>
   <div class="logo">
     <div class="logo-icon">🌱</div>
-    <div class="logo-text">
-      <h1>Meal Buddy</h1>
-      <p>Daycare · Toddler Planner</p>
-    </div>
+    <div class="logo-text"><h1>NourishLittle</h1><p id="hSub">Toddler Meal Planner</p></div>
   </div>
   <div class="header-right">
     <span class="week-badge" id="weekBadge">Week 1</span>
-    <div class="date-display">
-      <div class="day-name" id="dayName">—</div>
-      <div class="date-str" id="dateStr">—</div>
-    </div>
+    <div class="date-display"><div class="day-name" id="dayName">—</div><div class="date-str" id="dateStr">—</div></div>
+    <button class="btn-edit" onclick="openModal()">✏ Edit profile</button>
   </div>
 </header>
 
 <div class="app">
-
-  <!-- Echo Show tip -->
-  <div class="echo-banner">
-    <div class="echo-banner-icon">📺</div>
-    <div class="echo-banner-text">
-      <h3>Your kid's meal planner</h3>
-      <p>Bookmark this page and open it on your phone's or tab's browser — it'll always show today's suggestions.</p>
+  <!-- TOP STRIP -->
+  <div class="top-strip">
+    <div>
+      <div class="day-nav-label">Day</div>
+      <div class="days-row" id="daysRow"></div>
     </div>
-  </div>
-
-  <!-- Day picker -->
-  <div class="week-nav">
-    <div class="week-nav-title">Pick a day</div>
-    <div class="days-row" id="daysRow"></div>
-  </div>
-
-  <!-- Daycare meals today -->
-  <p class="section-label">What daycare is serving today</p>
-  <div class="daycare-card">
-    <div class="daycare-header">
-      <div>
-        <div class="daycare-title" id="dcTitle">Daycare — <span id="dcDay">Monday</span></div>
-        <div class="daycare-subtitle">Week <span id="dcWeek">1</span> schedule</div>
-      </div>
-    </div>
-    <div class="meals-row">
-      <div class="meal-chip am">
-        <div class="meal-chip-label">☀️ AM Snack</div>
-        <div class="meal-chip-text" id="dcAM">—</div>
-      </div>
-      <div class="meal-chip lunch">
-        <div class="meal-chip-label">🍽 Lunch</div>
-        <div class="meal-chip-text" id="dcLunch">—</div>
-      </div>
-      <div class="meal-chip pm">
-        <div class="meal-chip-label">🌤 PM Snack</div>
-        <div class="meal-chip-text" id="dcPM">—</div>
+    <div class="dc-card">
+      <div class="dc-title"><span id="schoolLbl">School</span> today — Week <span id="dcWeek">1</span>, <span id="dcDay">Mon</span></div>
+      <div class="dc-row">
+        <div class="dc-chip am"><div class="dc-lbl">AM snack</div><div class="dc-text" id="dcAM">—</div></div>
+        <div class="dc-chip lunch"><div class="dc-lbl">Lunch</div><div class="dc-text" id="dcLunch">—</div></div>
+        <div class="dc-chip pm"><div class="dc-lbl">PM snack</div><div class="dc-text" id="dcPM">—</div></div>
       </div>
     </div>
   </div>
 
-  <!-- Generate button -->
-  <div class="generate-section">
-    <button class="btn-generate" id="generateBtn" onclick="generateRecos()">
-      <span id="btnIcon">✨</span>
-      <span id="btnText">Show Today's Suggestions</span>
-    </button>
-    <button class="btn-secondary" onclick="cycleDay()">Next day →</button>
-  </div>
-
-  <div id="errorBox"></div>
-
-  <!-- Reco cards (hidden until generated) -->
-  <div id="recoSection" style="display:none">
-    <p class="section-label">Your home meal suggestions</p>
+  <!-- RECO CARDS -->
+  <div id="recoSection">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" id="recoLbl">Today's home meals</div>
     <div class="reco-grid">
-      <div class="reco-card breakfast fade-in">
-        <span class="reco-card-icon">🌅</span>
-        <div class="reco-card-type">Breakfast</div>
-        <div class="reco-card-title" id="bfTitle">—</div>
-        <div class="reco-card-why" id="bfWhy">—</div>
-        <div class="nutrition-tags" id="bfTags"></div>
+      <div class="reco-card bf fade-in">
+        <div class="rc-head"><div><div class="rc-type">🌅 Breakfast</div><div class="rc-title" id="bfT">—</div></div><div class="rc-icon">🍳</div></div>
+        <div class="rc-motivation" id="bfM">—</div>
+        <div class="rc-why" id="bfW">—</div>
+        <div class="ntags" id="bfTags"></div>
+        <button class="recipe-btn" onclick="toggleRecipe('bfRec',this)">Show quick recipe ▾</button>
+        <div class="recipe-box" id="bfRec"><div class="recipe-title" id="bfRT">—</div><ol class="recipe-steps" id="bfRS"></ol></div>
+        <div class="alt-lbl">Can't make it? Try instead:</div>
+        <div id="bfAlts"></div>
       </div>
-      <div class="reco-card dinner fade-in">
-        <span class="reco-card-icon">🌙</span>
-        <div class="reco-card-type">Dinner</div>
-        <div class="reco-card-title" id="dnTitle">—</div>
-        <div class="reco-card-why" id="dnWhy">—</div>
-        <div class="nutrition-tags" id="dnTags"></div>
+      <div class="reco-card dn fade-in">
+        <div class="rc-head"><div><div class="rc-type">🌙 Dinner</div><div class="rc-title" id="dnT">—</div></div><div class="rc-icon">🥘</div></div>
+        <div class="rc-motivation" id="dnM">—</div>
+        <div class="rc-why" id="dnW">—</div>
+        <div class="ntags" id="dnTags"></div>
+        <button class="recipe-btn" onclick="toggleRecipe('dnRec',this)">Show quick recipe ▾</button>
+        <div class="recipe-box" id="dnRec"><div class="recipe-title" id="dnRT">—</div><ol class="recipe-steps" id="dnRS"></ol></div>
+        <div class="alt-lbl">Can't make it? Try instead:</div>
+        <div id="dnAlts"></div>
       </div>
     </div>
 
-    <!-- Nutrition balance -->
-    <div class="balance-card fade-in">
-      <div class="balance-title">Today's Nutrition Balance 🥗</div>
-      <div class="balance-bars" id="balanceBars"></div>
-    </div>
-
-    <!-- Tip -->
-    <div class="tip-strip fade-in" id="tipBox">
-      <span class="tip-icon">💡</span>
-      <span id="tipText">—</span>
+    <!-- NUTRITION + TIP -->
+    <div class="bottom-row">
+      <div class="balance-card fade-in">
+        <div class="balance-title">Today's nutrition coverage 🥗</div>
+        <div id="balanceBars"></div>
+      </div>
+      <div class="tip-card fade-in">
+        <div class="tip-icon-wrap">💡</div>
+        <div><div class="tip-lbl">Prep tip for today</div><div class="tip-text" id="tipText">—</div></div>
+      </div>
     </div>
   </div>
 
+  <div class="footer-banner">
+    <div style="font-size:18px;flex-shrink:0;">📺</div>
+    <div><h3>Echo Show 15 ready</h3><p>Bookmark this in Silk browser — opens to today's meals automatically every morning.</p></div>
+  </div>
 </div>
 
 <script>
-// ── DAYCARE SCHEDULE DATA ──
-const schedule = {
-  1: { // Week 1
-    Monday: {
-      am: "½ small apple, 1 tbsp sun butter",
-      lunch: "½ cup pasta, ¼ cup peas, ¼ cup milk/water",
-      pm: "4 Ritz crackers, 1 oz cheese"
+let profile={name:'',age:'1-2',diet:'veg',cuisine:'balanced',allergies:'',loves:'',dislikes:'',school:''};
+
+['ageG','dietG','cuisineG'].forEach(g=>{
+  document.getElementById(g).addEventListener('click',e=>{
+    const o=e.target.closest('.chip-opt');if(!o)return;
+    document.querySelectorAll('#'+g+' .chip-opt').forEach(c=>c.classList.remove('sel'));
+    o.classList.add('sel');
+  });
+});
+
+function saveProfile(){
+  profile.name=document.getElementById('childName').value||'your little one';
+  profile.age=document.querySelector('#ageG .chip-opt.sel')?.dataset.v||'1-2';
+  profile.diet=document.querySelector('#dietG .chip-opt.sel')?.dataset.v||'veg';
+  profile.cuisine=document.querySelector('#cuisineG .chip-opt.sel')?.dataset.v||'balanced';
+  profile.allergies=document.getElementById('allergies').value;
+  profile.loves=document.getElementById('loves').value;
+  profile.dislikes=document.getElementById('dislikes').value;
+  profile.school=document.getElementById('schoolName').value||'School';
+  try{localStorage.setItem('nourish_p',JSON.stringify(profile));}catch(e){}
+  applyProfile();
+  document.getElementById('onboardModal').style.display='none';
+}
+
+function applyProfile(){
+  document.getElementById('hSub').textContent=profile.name+' · '+(profile.school||'School')+' plan';
+  document.getElementById('schoolLbl').textContent=profile.school||'School';
+  document.getElementById('recoLbl').textContent='Today\'s home meals for '+profile.name;
+}
+
+function openModal(){
+  document.getElementById('childName').value=profile.name!=='your little one'?profile.name:'';
+  document.getElementById('allergies').value=profile.allergies;
+  document.getElementById('loves').value=profile.loves;
+  document.getElementById('dislikes').value=profile.dislikes;
+  document.getElementById('schoolName').value=profile.school!=='School'?profile.school:'';
+  setChip('ageG',profile.age);setChip('dietG',profile.diet);setChip('cuisineG',profile.cuisine);
+  document.getElementById('onboardModal').style.display='flex';
+}
+function setChip(g,v){document.querySelectorAll('#'+g+' .chip-opt').forEach(c=>c.classList.toggle('sel',c.dataset.v===v));}
+
+const schedule={
+  1:{
+    Monday:{am:"½ small apple, 1 tbsp sun butter",lunch:"½ cup pasta, ¼ cup peas, ¼ cup milk",pm:"4 Ritz crackers, 1 oz cheese"},
+    Tuesday:{am:"¾ cup Cheerios, ¾ cup milk",lunch:"2 idlis, mix veg sambar, ¼ cup orange wedges",pm:"¼ cup yogurt, ¼ cup berries"},
+    Wednesday:{am:"Bagels with cream cheese",lunch:"1½ oz chicken/paneer/tofu, ¼ cup rice, ¼ cup corn",pm:"½ oz goldfish crackers, ¼ cup cucumbers"},
+    Thursday:{am:"Cereal, milk",lunch:"½ sun butter banana sandwich, ¼ cup carrots",pm:"1 string cheese, ½ apple"},
+    Friday:{am:"½ banana, muffin, ¼ cup milk",lunch:"¼ cup vegetable pulao, ¼ cup orange wedges",pm:"2 graham crackers, ¾ cup milk"}
+  },
+  2:{
+    Monday:{am:"¼ cup applesauce",lunch:"½ veg sandwich, ¼ cup broccoli, ½ banana",pm:"Cucumbers, goldfish crackers"},
+    Tuesday:{am:"Bagels, cream cheese",lunch:"1 chapati, ¼ cup dal, ¼ cup cucumbers, ¼ cup apples",pm:"¼ cup orange wedges, ½ oz animal crackers"},
+    Wednesday:{am:"Bread butter jelly sandwich",lunch:"1½ oz chicken/paneer/tofu, ¼ cup rice, ¼ cup corn",pm:"½ oz animal crackers, fruits"},
+    Thursday:{am:"Cereal, ¾ cup milk",lunch:"¼ cup spaghetti, 2 tbsp sauce, ¼ cup peas, 1 tbsp cheese",pm:"¼ cup yogurt, ¼ cup berries"},
+    Friday:{am:"Muffins, ½ cup milk",lunch:"¼ cup mac & cheese, ¼ cup carrots & peas, ¼ cup apples",pm:"½ oz pretzels"}
+  }
+};
+
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+let dayIdx=0,week=1;
+
+// ALL 10 BREAKFASTS UNIQUE — no two days have the same
+const meals={
+  1:{
+    Monday:{
+      bf:{t:"Banana oats",m:"A warm hug in a bowl — ready in 5 minutes, loved every time.",w:"Iron-fortified oats with banana balance the pasta-heavy daycare lunch.",tags:["iron","fiber","5 min"],rec:{t:"Banana oats (serves 1)",s:["Cook ¼ cup quick oats in ¾ cup whole milk on medium, 3 min.","Mash in ½ ripe banana, stir well.","Optional: ½ tsp honey. Serve warm."]},alts:[{n:"Whole wheat paratha + yogurt",note:"If he wants something savoury",r:"Roll small paratha with ghee, cook 2 min each side. Serve with plain yogurt."},{n:"Ragi porridge",note:"South Indian iron boost",r:"Cook 2 tbsp ragi flour in ¾ cup milk, stir 4 min. Sweeten with jaggery."}]},
+      dn:{t:"Lentil soup + roti + broccoli",m:"He worked hard at daycare — give him something that truly nourishes tonight.",w:"Lentils add iron and protein to round out a lighter daycare protein day.",tags:["iron","protein","fiber"],rec:{t:"Quick masoor dal soup",s:["Pressure cook ¼ cup masoor dal with 1 cup water (2 whistles).","Temper with ghee, cumin, pinch turmeric.","Serve with 1 small roti and 3–4 soft steamed broccoli florets."]},alts:[{n:"Moong dal + rice",note:"Gentler on digestion",r:"Cook ¼ cup moong dal + 2 tbsp rice together. Season with ghee + cumin."},{n:"Tomato soup + grilled cheese",note:"Western option, 10 min",r:"Heat tomato soup. Grill whole wheat cheese toast. Serve together."}]},
+      nut:{protein:78,carbs:85,dairy:65,veggies:72,iron:82},tip:"Stir a little whole milk into the oats for an easy calcium boost at breakfast."
     },
-    Tuesday: {
-      am: "¾ cup Cheerios, ¾ cup milk",
-      lunch: "2 idlis, mix veg sambar, ¼ cup orange wedges",
-      pm: "¼ cup yogurt, ¼ cup berries"
+    Tuesday:{
+      bf:{t:"2 boiled eggs + fruit",m:"Quick, protein-packed, zero cooking stress on a Tuesday morning.",w:"Eggs give complete protein before idli + sambar at daycare — no carb repeat.",tags:["protein","iron","quick"],rec:{t:"Boiled eggs + fruit (serves 1)",s:["Boil eggs in cold water, bring to boil, cook 9 min.","Peel and halve. Sprinkle tiny pinch of salt.","Serve with ½ banana or a few grapes."]},alts:[{n:"Avocado toast",note:"No eggs today?",r:"Mash ½ avocado on 1 slice toast with a tiny pinch of salt. 3 min."},{n:"Idli + sambar",note:"South Indian option",r:"Steam frozen idlis 5 min. Serve with store-bought or homemade sambar."}]},
+      dn:{t:"Paneer stir-fry + rice + cucumber",m:"Paneer makes dinner feel special — and it takes only 10 minutes.",w:"Paneer adds calcium and protein that complement the yogurt-forward snack day.",tags:["protein","calcium","quick"],rec:{t:"Quick paneer stir-fry",s:["Cut 50g paneer into small cubes.","Sauté in 1 tsp oil with cumin, turmeric, and soft peas.","Serve with ¼ cup cooked rice and sliced cucumber."]},alts:[{n:"Egg fried rice",note:"Even faster",r:"Scramble 1 egg in oil, add day-old rice, pinch salt and dash soy sauce."},{n:"Dal makhani + chapati",note:"Richer option",r:"Heat canned dal makhani with a drop of cream. Serve with small chapati."}]},
+      nut:{protein:82,carbs:88,dairy:78,veggies:68,iron:74},tip:"Boil eggs the night before — peel and serve in the morning, no effort at all."
     },
-    Wednesday: {
-      am: "Bagels with cream cheese",
-      lunch: "1½ oz chicken/paneer/tofu, ¼ cup rice, ¼ cup corn",
-      pm: "½ oz goldfish crackers, ¼ cup cucumbers"
+    Wednesday:{
+      bf:{t:"Avocado toast",m:"Creamy, colourful, three minutes flat — a morning win every time.",w:"Healthy fats fuel brain development before the protein-rich daycare lunch.",tags:["healthy fats","quick","brain"],rec:{t:"Avocado toast (serves 1)",s:["Toast 1 slice whole wheat bread.","Mash ½ ripe avocado with a tiny pinch of salt.","Spread generously. Cut into strips for easy toddler eating."]},alts:[{n:"Banana oats",note:"If no avocado at home",r:"Cook ¼ cup oats in ¾ cup milk. Mash ½ banana in. Serve warm."},{n:"Soft cheese on toast",note:"Quicker still",r:"Toast bread, spread with soft cream cheese. Cut into strips."}]},
+      dn:{t:"Dal tadka + chapati + carrots",m:"A home-cooked dal after school is the best comfort you can give.",w:"Dal balances the corn and rice from daycare with added iron and fiber.",tags:["iron","fiber","comforting"],rec:{t:"Dal tadka (serves 2)",s:["Pressure cook ¼ cup toor dal with water (3 whistles).","Temper: heat ghee, add cumin, garlic (skip chilli for toddlers).","Serve with chapati and soft cooked carrot sticks."]},alts:[{n:"Rajma chawal",note:"North Indian favourite",r:"Heat canned rajma with onion-tomato base, mild spices. Serve with rice."},{n:"Pasta + veggies + cheese",note:"No-fuss option",r:"Cook pasta, toss with butter, grated cheese, and soft steamed peas."}]},
+      nut:{protein:80,carbs:90,dairy:60,veggies:78,iron:85},tip:"Cook carrot sticks until they mash easily — perfect soft texture for toddlers."
     },
-    Thursday: {
-      am: "Cereal, milk",
-      lunch: "½ sun butter banana sandwich, ¼ cup carrots",
-      pm: "1 string cheese, ½ apple"
+    Thursday:{
+      bf:{t:"Veggie upma",m:"A warm savoury breakfast makes a great change — and it's ready in 8 minutes.",w:"Semolina gives steady energy before the carb-light daycare sandwich day.",tags:["energy","savoury","iron"],rec:{t:"Quick veggie upma (serves 1)",s:["Dry roast 3 tbsp semolina (rava) 2 min. Set aside.","Sauté mustard seeds, curry leaves, diced carrot and peas in 1 tsp oil.","Add ¾ cup boiling water + salt. Stir in rava. Cook 3 min till thick."]},alts:[{n:"2 boiled eggs + toast",note:"Quicker option",r:"Boil 2 eggs 9 min. Serve with buttered toast cut into dipping strips."},{n:"Poha with peas",note:"Even lighter",r:"Rinse ½ cup poha, drain. Sauté with mustard seeds, curry leaves, peas, turmeric."}]},
+      dn:{t:"Vegetable khichdi + yogurt",m:"One pot, pure comfort, deeply nourishing — the weeknight dinner that never fails.",w:"Khichdi (rice + lentil) is a gentle nutritional powerhouse after a long school day.",tags:["protein","iron","one-pot"],rec:{t:"Toddler khichdi (serves 2)",s:["Combine 3 tbsp rice + 3 tbsp moong dal, rinse well.","Pressure cook with 1.5 cups water, pinch turmeric, 1 tsp ghee (3 whistles).","Mash to soft consistency. Serve with a small bowl of plain yogurt."]},alts:[{n:"Vegetable soup + bread",note:"Even lighter option",r:"Blend steamed carrots + potato with milk. Season mildly. Serve with toast."},{n:"Curd rice",note:"South Indian comfort",r:"Mix cooked rice with yogurt. Temper with mustard + curry leaves."}]},
+      nut:{protein:84,carbs:78,dairy:72,veggies:65,iron:78},tip:"Make khichdi the night before — just reheat with a splash of water next morning."
     },
-    Friday: {
-      am: "½ banana, muffin, ¼ cup milk",
-      lunch: "¼ cup vegetable pulao, ¼ cup orange wedges",
-      pm: "2 graham crackers, ¾ cup milk"
+    Friday:{
+      bf:{t:"Avocado toast + egg",m:"End the week with his favourite combination — he's earned it.",w:"Avocado fats + egg protein balance the carb-heavy vegetable pulao at daycare.",tags:["healthy fats","protein","filling"],rec:{t:"Avocado toast + egg (serves 1)",s:["Toast 1 slice bread. Mash ½ avocado with a pinch of salt.","Soft-scramble or slice 1 boiled egg separately.","Top toast with avocado then egg. Serve immediately."]},alts:[{n:"Banana oats",note:"No eggs at home?",r:"Cook ¼ cup oats in ¾ cup milk. Mash ½ banana in. Serve warm."},{n:"Poha with peas",note:"Light savoury option",r:"Rinse ½ cup poha. Sauté with mustard seeds, peas, onion, turmeric. Cook 3 min."}]},
+      dn:{t:"Mild chicken curry + rice + peas",m:"Friday night deserves a proper dinner — something that smells amazing too.",w:"Chicken protein and iron complement the vegetable pulao served at daycare today.",tags:["protein","iron","special"],rec:{t:"Mild toddler chicken curry",s:["Cook 50g diced chicken with onion, tomato, tiny pinch cumin + turmeric.","Add ¼ cup water, simmer 10 min till soft.","Serve with ¼ cup rice and soft cooked peas."]},alts:[{n:"Paneer butter masala + roti",note:"Vegetarian Friday",r:"Heat store-bought paneer butter masala with paneer cubes. Serve with roti."},{n:"Egg curry + rice",note:"Quick protein",r:"Hard-boil 2 eggs. Make onion-tomato gravy, add halved eggs, simmer 5 min."}]},
+      nut:{protein:86,carbs:82,dairy:60,veggies:74,iron:80},tip:"Make a double batch of chicken curry Friday — it freezes perfectly for next week."
     }
   },
-  2: { // Week 2
-    Monday: {
-      am: "¼ cup applesauce",
-      lunch: "½ veg sandwich, ¼ cup broccoli, ½ banana",
-      pm: "Cucumbers, goldfish crackers"
+  2:{
+    Monday:{
+      bf:{t:"2 boiled eggs + yogurt",m:"Simple, reliable, done in under 10 minutes — even on a Monday.",w:"Eggs add protein and iron to offset the applesauce-light AM snack at daycare.",tags:["protein","calcium","quick"],rec:{t:"Boiled eggs + yogurt (serves 1)",s:["Boil 2 eggs in cold water, cook 9 min after boiling.","Peel and halve with a tiny pinch of salt.","Serve alongside ½ cup plain yogurt with a drizzle of honey."]},alts:[{n:"Ragi pancakes",note:"Iron-rich South Indian",r:"Mix 3 tbsp ragi flour + 1 egg + milk to batter. Cook small pancakes 2 min each side."},{n:"Avocado toast",note:"If no eggs at home",r:"Mash ½ avocado on toasted bread with a tiny pinch of salt."}]},
+      dn:{t:"Paneer + sweet potato + peas",m:"Sweet potato has a natural sweetness toddlers love — this one almost never gets refused.",w:"Sweet potato delivers Vitamin A and natural sweetness that makes vegetables easy.",tags:["vitamin A","protein","colorful"],rec:{t:"Sweet potato + paneer bowl",s:["Cube 1 small sweet potato, steam 12 min or roast at 200°C for 20 min.","Sauté 50g paneer cubes with cumin and turmeric.","Combine with soft peas. Serve as a warm bowl."]},alts:[{n:"Aloo paneer sabzi + chapati",note:"Classic North Indian",r:"Cook cubed potato + paneer with onion, tomato, mild spices. Serve with chapati."},{n:"Sweet potato soup",note:"Even easier",r:"Steam and blend sweet potato with milk and a pinch of ginger. Serve warm."}]},
+      nut:{protein:85,carbs:80,dairy:74,veggies:82,iron:76},tip:"Roast sweet potato cubes on Sunday — they keep in the fridge all week."
     },
-    Tuesday: {
-      am: "Bagels, cream cheese",
-      lunch: "1 chapati, ¼ cup dal, ¼ cup cucumbers, ¼ cup apples",
-      pm: "¼ cup orange wedges, ½ oz animal crackers"
+    Tuesday:{
+      bf:{t:"Fruit bowl + warm milk",m:"Light and refreshing — the perfect gentle start before a heavy dal-chapati daycare lunch.",w:"Vitamin C from fruit helps absorb the iron in the dal served at school today.",tags:["vitamin C","calcium","light"],rec:{t:"Fruit bowl + warm milk (serves 1)",s:["Dice ½ banana, 4–5 grapes, a few mango or apple pieces.","Serve in a small bowl.","Alongside: ¾ cup warm whole milk."]},alts:[{n:"Banana oats",note:"More filling option",r:"Cook ¼ cup oats in ¾ cup milk. Mash ½ banana in. Serve warm."},{n:"Dosa + coconut chutney",note:"South Indian option",r:"Use ready dosa batter. Make thin dosas. Serve with coconut chutney."}]},
+      dn:{t:"Tomato soup + grilled cheese",m:"A classic combo kids universally adore — and it's ready in 12 minutes.",w:"Tomato boosts Vitamin C and grilled cheese delivers calcium and protein for dinner.",tags:["calcium","vitamin C","easy"],rec:{t:"Tomato soup + grilled cheese",s:["Heat 1 cup tomato soup (store-bought or blend 2 tomatoes).","Grill 2 slices whole wheat bread with cheese in a pan, 2 min each side.","Serve soup warm with toast cut into triangles."]},alts:[{n:"Oats porridge with veggies",note:"Softer option",r:"Cook oats in milk with finely diced carrot and peas. Season with mild salt."},{n:"Chapati + paneer bhurji",note:"North Indian option",r:"Scramble paneer with onion, tomato, cumin. Serve with small chapati."}]},
+      nut:{protein:72,carbs:86,dairy:80,veggies:66,iron:68},tip:"Use whole wheat bread for grilled cheese — adds extra fiber and iron."
     },
-    Wednesday: {
-      am: "Bread butter jelly sandwich",
-      lunch: "1½ oz chicken/paneer/tofu, ¼ cup rice, ¼ cup corn",
-      pm: "½ oz animal crackers, fruits"
+    Wednesday:{
+      bf:{t:"Banana oats + berries",m:"Berries make the bowl colourful and exciting — toddlers eat with their eyes first.",w:"Berries add Vitamin C which boosts iron absorption from oats — a perfect combo.",tags:["iron","vitamin C","colorful"],rec:{t:"Banana berry oats (serves 1)",s:["Cook ¼ cup oats in ¾ cup whole milk, 3 min.","Mash ½ banana in, stir well.","Top with 6–8 blueberries or sliced strawberries. Serve warm."]},alts:[{n:"Ragi dosa + chutney",note:"South Indian iron boost",r:"Make thin ragi dosa from batter. Serve with coconut chutney."},{n:"French toast",note:"Western option",r:"Dip bread in egg + milk. Cook 2 min each side. Dust with cinnamon."}]},
+      dn:{t:"Moong dal + rice + green beans",m:"Moong dal is the gentlest on little tummies — cook once, feel good all evening.",w:"The gentlest lentil for toddler digestion, packed with protein and easy to eat.",tags:["protein","iron","gentle"],rec:{t:"Moong dal + rice (serves 2)",s:["Boil ¼ cup moong dal + 3 tbsp rice together in 1.5 cups water till mushy.","Temper with ghee, cumin, and a pinch of turmeric.","Steam green beans separately 5 min. Serve alongside."]},alts:[{n:"Vegetable khichdi",note:"One-pot version",r:"Cook rice + moong dal + diced veggies together. Season with ghee + cumin."},{n:"Pasta + cheese + peas",note:"Western option",r:"Cook pasta, toss with butter, grated cheese, and soft cooked peas."}]},
+      nut:{protein:78,carbs:88,dairy:58,veggies:76,iron:80},tip:"Add a small piece of cheese on the side at dinner to fill today's calcium gap."
     },
-    Thursday: {
-      am: "Cereal, ¾ cup milk",
-      lunch: "¼ cup spaghetti, 2 tbsp sauce, ¼ cup peas, 1 tbsp cheese",
-      pm: "¼ cup yogurt, ¼ cup berries"
+    Thursday:{
+      bf:{t:"Poha with peas",m:"One of the most underrated toddler breakfasts — light, iron-rich, done in 8 minutes.",w:"Iron-fortified poha pairs well before the spaghetti-heavy daycare lunch.",tags:["iron","light","savoury"],rec:{t:"Toddler poha (serves 1)",s:["Rinse ½ cup thick poha in water, drain, set aside 5 min to soften.","Heat 1 tsp oil, add mustard seeds, curry leaves, finely diced onion.","Add poha + peas + pinch turmeric + salt. Stir 2 min."]},alts:[{n:"Avocado toast",note:"Quicker option",r:"Mash ½ avocado on toasted bread with a tiny pinch of salt. Cut into strips."},{n:"2 boiled eggs + toast",note:"More protein",r:"Boil 2 eggs 9 min. Serve with buttered toast strips."}]},
+      dn:{t:"Vegetable curry + chapati + cucumber",m:"A mild, colourful curry after school — the kind of dinner that makes cooking feel worthwhile.",w:"Balances the cheese and peas from daycare spaghetti with fresh vegetables.",tags:["fiber","veggies","balanced"],rec:{t:"Mild toddler vegetable curry",s:["Sauté onion + tomato + ½ tsp cumin in oil till soft.","Add cubed potato, carrot, and peas with ½ cup water.","Simmer 10 min till soft. No chilli. Serve with chapati and cucumber slices."]},alts:[{n:"Dal + rice",note:"Simpler option",r:"Cook toor dal with tomato and cumin. Serve with rice and a papad."},{n:"Chicken stew + bread",note:"Non-veg option",r:"Simmer diced chicken with potato, carrot in mild coconut milk broth. Serve with bread."}]},
+      nut:{protein:80,carbs:82,dairy:76,veggies:80,iron:74},tip:"Make the curry extra mild — a pinch of cumin only, no chilli whatsoever for toddlers."
     },
-    Friday: {
-      am: "Muffins, ½ cup milk",
-      lunch: "¼ cup mac & cheese, ¼ cup carrots & peas, ¼ cup apples",
-      pm: "½ oz pretzels"
+    Friday:{
+      bf:{t:"Veggie semolina pancakes",m:"Crispy little savoury pancakes — a fun Friday breakfast he can eat with his fingers.",w:"Semolina + veggies give a steady energy start before the muffin-heavy daycare AM snack.",tags:["energy","savoury","finger food"],rec:{t:"Semolina veggie pancakes (serves 1)",s:["Mix 3 tbsp semolina + 1 tbsp yogurt + 2 tbsp water + pinch salt.","Add finely grated carrot or peas. Rest 5 min.","Cook small round pancakes in oil, 2 min each side till golden."]},alts:[{n:"Banana oats",note:"Sweeter option",r:"Cook ¼ cup oats in ¾ cup milk. Mash ½ banana in. Serve warm."},{n:"Egg on toast",note:"Quick protein",r:"Scramble 1 egg with butter. Serve on buttered toast cut into strips."}]},
+      dn:{t:"Egg fried rice + broccoli + yogurt",m:"A fun dinner that feels like a treat — and the broccoli disappears when it's in fried rice.",w:"Egg adds protein and iron; broccoli boosts Vitamin C and calcium to close the week strong.",tags:["protein","vitamin C","calcium"],rec:{t:"Toddler egg fried rice (serves 2)",s:["Use day-old cooked rice (½ cup). Scramble 1 egg in oil in a hot pan.","Add rice, tiny splash soy sauce, salt. Stir-fry 3 min.","Steam broccoli florets 4 min separately. Serve with ½ cup plain yogurt."]},alts:[{n:"Paneer + rice + dal",note:"Vegetarian Friday",r:"Simple dal + rice + small paneer pieces sautéed with cumin."},{n:"Fish curry + rice",note:"Coastal option",r:"Cook diced fish in mild coconut + tomato gravy. Serve with rice."}]},
+      nut:{protein:82,carbs:84,dairy:72,veggies:78,iron:78},tip:"Day-old rice is the secret to great fried rice — it fries up perfectly without going mushy."
     }
   }
 };
 
-const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
-
-// ── STATE ──
-let currentDayIndex = 0;
-let currentWeek = 1;
-
-// ── INIT ──
-function init() {
-  const now = new Date();
-  const jsDay = now.getDay(); // 0=Sun
-  currentDayIndex = (jsDay >= 1 && jsDay <= 5) ? jsDay - 1 : 0;
-
-  // Determine week (odd ISO week = week 1, even = week 2)
-  const jan4 = new Date(now.getFullYear(), 0, 4);
-  const isoWeek = Math.ceil(((now - jan4) / 86400000 + jan4.getDay() + 1) / 7);
-  currentWeek = (isoWeek % 2 === 1) ? 1 : 2;
-
-  document.getElementById('dayName').textContent = DAYS[currentDayIndex];
-  document.getElementById('dateStr').textContent = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-
-  buildDayButtons();
-  renderDaycarePanel();
+function init(){
+  try{const s=localStorage.getItem('nourish_p');if(s){profile=JSON.parse(s);applyProfile();document.getElementById('onboardModal').style.display='none';}}catch(e){}
+  const now=new Date();
+  const d=now.getDay();
+  dayIdx=(d>=1&&d<=5)?d-1:0;
+  const jan4=new Date(now.getFullYear(),0,4);
+  const iso=Math.ceil(((now-jan4)/86400000+jan4.getDay()+1)/7);
+  week=(iso%2===1)?1:2;
+  document.getElementById('dayName').textContent=DAYS[dayIdx];
+  document.getElementById('dateStr').textContent=now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  buildDays();renderAll();
 }
 
-function buildDayButtons() {
-  const row = document.getElementById('daysRow');
-  row.innerHTML = '';
-  DAYS.forEach((d,i) => {
-    const btn = document.createElement('button');
-    btn.className = 'day-btn' + (i === currentDayIndex ? ' active' : '');
-    btn.textContent = d;
-    btn.onclick = () => { currentDayIndex = i; selectDay(i); };
-    row.appendChild(btn);
+function buildDays(){
+  const row=document.getElementById('daysRow');
+  row.innerHTML='';
+  DAYS.forEach((d,i)=>{
+    const b=document.createElement('button');
+    b.className='day-btn'+(i===dayIdx?' active':'');
+    b.textContent=d.slice(0,3);
+    b.onclick=()=>{dayIdx=i;document.querySelectorAll('.day-btn').forEach((x,j)=>x.classList.toggle('active',j===i));document.getElementById('dayName').textContent=DAYS[i];renderAll();};
+    row.appendChild(b);
   });
 }
 
-function selectDay(i) {
-  currentDayIndex = i;
-  document.querySelectorAll('.day-btn').forEach((b,j) => b.classList.toggle('active', j===i));
-  document.getElementById('dayName').textContent = DAYS[i];
-  renderDaycarePanel();
-  document.getElementById('recoSection').style.display = 'none';
+function renderAll(){
+  const day=DAYS[dayIdx];
+  const dc=schedule[week][day];
+  document.getElementById('dcDay').textContent=day;
+  document.getElementById('dcWeek').textContent=week;
+  document.getElementById('weekBadge').textContent='Week '+week;
+  document.getElementById('dcAM').textContent=dc.am;
+  document.getElementById('dcLunch').textContent=dc.lunch;
+  document.getElementById('dcPM').textContent=dc.pm;
+
+  const p=meals[week][day];
+  setText('bfT',p.bf.t);setText('bfM',p.bf.m);setText('bfW',p.bf.w);
+  setTags('bfTags',p.bf.tags,'bf');
+  setText('bfRT',p.bf.rec.t);setSteps('bfRS',p.bf.rec.s);
+  setAlts('bfAlts',p.bf.alts,'bf');
+
+  setText('dnT',p.dn.t);setText('dnM',p.dn.m);setText('dnW',p.dn.w);
+  setTags('dnTags',p.dn.tags,'dn');
+  setText('dnRT',p.dn.rec.t);setSteps('dnRS',p.dn.rec.s);
+  setAlts('dnAlts',p.dn.alts,'dn');
+
+  document.querySelectorAll('.recipe-box').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.recipe-btn').forEach(b=>b.textContent='Show quick recipe ▾');
+
+  setBars(p.nut);setText('tipText',p.tip);
 }
 
-function cycleDay() {
-  selectDay((currentDayIndex + 1) % 5);
+function setText(id,v){document.getElementById(id).textContent=v;}
+function setTags(id,tags,cls){document.getElementById(id).innerHTML=tags.map(t=>`<span class="ntag">${t}</span>`).join('');}
+function setSteps(id,steps){document.getElementById(id).innerHTML=steps.map(s=>`<li>${s}</li>`).join('');}
+function setAlts(id,alts,cls){
+  document.getElementById(id).innerHTML=alts.map((a,i)=>`
+    <div class="alt-item" id="${id}_${i}" onclick="this.classList.toggle('exp')">
+      <div class="alt-name">${a.n}</div>
+      <div class="alt-note">${a.note}</div>
+      <div class="alt-recipe">${a.r}</div>
+    </div>`).join('');
 }
-
-function renderDaycarePanel() {
-  const day = DAYS[currentDayIndex];
-  const meals = schedule[currentWeek][day];
-  document.getElementById('dcDay').textContent = day;
-  document.getElementById('dcWeek').textContent = currentWeek;
-  document.getElementById('weekBadge').textContent = `Week ${currentWeek}`;
-  document.getElementById('dcAM').textContent = meals.am;
-  document.getElementById('dcLunch').textContent = meals.lunch;
-  document.getElementById('dcPM').textContent = meals.pm;
+function toggleRecipe(id,btn){
+  const b=document.getElementById(id);
+  const open=b.classList.toggle('open');
+  btn.textContent=open?'Hide recipe ▴':'Show quick recipe ▾';
 }
-
-// ── HARDCODED MEAL PLAN (his favourites: banana oats, boiled eggs, avocado toast) ──
-const mealPlan = {
-  1: {
-    Monday:    { breakfast: { name: "Banana oats", description: "Quick oats with mashed banana — iron-fortified oats balance the pasta-heavy daycare lunch.", tags: ["iron","fiber","quick"] }, dinner: { name: "Lentil soup + roti + broccoli", description: "Lentils add iron and protein to round out a lighter daycare protein day.", tags: ["iron","protein","fiber"] }, nutrition: { protein: 78, carbs: 85, dairy: 65, veggies: 72, iron: 82 }, tip: "Stir a little whole milk into the oats for an easy calcium boost at breakfast." },
-    Tuesday:   { breakfast: { name: "French Toast", description: "French toast gives slow-release energy before a sambar-heavy daycare lunch.", tags: ["fiber","energy","quick"] }, dinner: { name: "Paneer stir-fry + rice + cucumber", description: "Paneer adds calcium and protein to complement the yogurt-light dinner side.", tags: ["protein","calcium","quick"] }, nutrition: { protein: 82, carbs: 88, dairy: 78, veggies: 68, iron: 74 }, tip: "Cut paneer into small cubes — easier for toddler fingers to pick up." },
-    Wednesday: { breakfast: { name: "Banana oats", description: "Fast to make and filling before a protein-rich chicken/paneer daycare lunch.", tags: ["iron","fiber","quick"] }, dinner: { name: "Dal tadka + chapati + carrots", description: "Dal balances the corn and rice from daycare with added iron and fiber.", tags: ["iron","fiber","protein"] }, nutrition: { protein: 80, carbs: 90, dairy: 60, veggies: 78, iron: 85 }, tip: "Cook the carrots soft enough to mash with a fork — perfect toddler texture." },
-    Thursday:  { breakfast: { name: "2 boiled eggs", description: "Protein-packed and hands-free to prepare — great contrast to the carb-heavy daycare sandwich.", tags: ["protein","iron","quick"] }, dinner: { name: "Vegetable khichdi + yogurt", description: "Khichdi (rice + lentil) is a gentle complete meal after a long daycare day.", tags: ["protein","iron","easy"] }, nutrition: { protein: 84, carbs: 78, dairy: 72, veggies: 65, iron: 78 }, tip: "Boil the eggs the night before — just peel and serve in the morning." },
-    Friday:    { breakfast: { name: "Avocado toast", description: "Healthy fats from avocado support brain development and keep him full before daycare.", tags: ["healthy fats","quick","filling"] }, dinner: { name: "Mild chicken curry + rice + peas", description: "Protein and iron from chicken complement the vegetable pulao served at daycare.", tags: ["protein","iron","balanced"] }, nutrition: { protein: 86, carbs: 82, dairy: 60, veggies: 74, iron: 80 }, tip: "Smash the avocado with a tiny pinch of salt — toddlers usually love the creamy texture." }
-  },
-  2: {
-    Monday:    { breakfast: { name: "2 boiled eggs + yogurt", description: "Eggs add protein and iron to offset the lighter applesauce AM snack at daycare.", tags: ["protein","calcium","quick"] }, dinner: { name: "Paneer + sweet potato + peas", description: "Sweet potato delivers Vitamin A and natural sweetness toddlers enjoy.", tags: ["vitamin A","protein","fiber"] }, nutrition: { protein: 85, carbs: 80, dairy: 74, veggies: 82, iron: 76 }, tip: "Roast sweet potato cubes — batch cook on Sunday for the week." },
-    Tuesday:   { breakfast: { name: "Fruit bowl + milk + crackers", description: "Light and quick — pairs well with the heavier chapati and dal daycare lunch ahead.", tags: ["vitamin C","calcium","quick"] }, dinner: { name: "Tomato soup + grilled cheese", description: "Tomato boosts Vitamin C and grilled cheese adds calcium and protein for dinner.", tags: ["calcium","vitamin C","easy"] }, nutrition: { protein: 72, carbs: 86, dairy: 80, veggies: 66, iron: 68 }, tip: "Use whole wheat bread for grilled cheese — adds extra fiber and iron." },
-    Wednesday: { breakfast: { name: "French Toast", description: "French toast gives slow-release energy", tags: ["iron","vitamin C","fiber"] }, dinner: { name: "Moong dal + rice + green beans", description: "Moong dal is the gentlest lentil on toddler digestion and rich in protein.", tags: ["protein","iron","gentle"] }, nutrition: { protein: 78, carbs: 88, dairy: 58, veggies: 76, iron: 80 }, tip: "Add a small piece of cheese on the side at dinner to fill the calcium gap today." },
-    Thursday:  { breakfast: { name: "Avocado toast", description: "Healthy fats and fiber before a spaghetti-heavy daycare lunch keeps energy steady.", tags: ["healthy fats","fiber","quick"] }, dinner: { name: "Vegetable curry + chapati + cucumber", description: "A mild vegetable curry balances the cheese and peas from daycare spaghetti.", tags: ["fiber","veggies","balanced"] }, nutrition: { protein: 80, carbs: 82, dairy: 76, veggies: 80, iron: 74 }, tip: "Make the curry extra mild — a pinch of cumin only, no chilli." },
-    Friday:    { breakfast: { name: "Banana oats", description: "Iron-rich oats complement the muffin AM snack at daycare without duplicating it.", tags: ["iron","fiber","quick"] }, dinner: { name: "Egg fried rice + broccoli + yogurt", description: "Egg adds protein and iron; broccoli boosts Vitamin C and calcium for the day.", tags: ["protein","vitamin C","calcium"] }, nutrition: { protein: 82, carbs: 84, dairy: 72, veggies: 78, iron: 78 }, tip: "Use day-old rice for fried rice — it fries up much better than freshly cooked." }
-  }
-};
-
-function generateRecos() {
-  const day = DAYS[currentDayIndex];
-  const plan = mealPlan[currentWeek][day];
-  renderRecos(plan);
+function setBars(nut){
+  const labels={protein:'Protein',carbs:'Carbs',dairy:'Dairy',veggies:'Veggies',iron:'Iron'};
+  const colors={protein:'#7A9E7E',carbs:'#D4A84B',dairy:'#6BAED6',veggies:'#52A452',iron:'#D47A5A'};
+  document.getElementById('balanceBars').innerHTML=Object.entries(nut).map(([k,v])=>`
+    <div class="b-row"><span class="b-lbl">${labels[k]}</span>
+    <div class="b-track"><div class="b-fill" style="width:${v}%;background:${colors[k]}"></div></div>
+    <span class="b-pct">${v}%</span></div>`).join('');
 }
-
-function renderRecos(r) {
-  document.getElementById('bfTitle').textContent = r.breakfast.name;
-  document.getElementById('bfWhy').textContent = r.breakfast.description;
-  renderTags('bfTags', r.breakfast.tags, 'breakfast');
-
-  document.getElementById('dnTitle').textContent = r.dinner.name;
-  document.getElementById('dnWhy').textContent = r.dinner.description;
-  renderTags('dnTags', r.dinner.tags, 'dinner');
-
-  renderBars(r.nutrition);
-  document.getElementById('tipText').textContent = r.tip;
-
-  const sec = document.getElementById('recoSection');
-  sec.style.display = 'block';
-  sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function renderTags(id, tags, type) {
-  const el = document.getElementById(id);
-  el.innerHTML = tags.map(t => `<span class="ntag">${t}</span>`).join('');
-}
-
-function renderBars(nutrition) {
-  const labels = { protein: 'Protein', carbs: 'Carbs', dairy: 'Dairy', veggies: 'Veggies', iron: 'Iron' };
-  const colors = { protein: '#7A9E7E', carbs: '#D4A84B', dairy: '#6BAED6', veggies: '#52A452', iron: '#D47A5A' };
-  const bars = document.getElementById('balanceBars');
-  bars.innerHTML = '';
-  Object.entries(nutrition).forEach(([key, val]) => {
-    bars.innerHTML += `
-      <div class="balance-row">
-        <span class="balance-label">${labels[key]||key}</span>
-        <div class="balance-track">
-          <div class="balance-fill" style="width:${val}%;background:${colors[key]||'#7A9E7E'}"></div>
-        </div>
-        <span class="balance-pct">${val}%</span>
-      </div>`;
-  });
-}
-
 init();
 </script>
 </body>
