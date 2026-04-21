@@ -126,6 +126,40 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
 .footer-banner p{font-size:10px;color:rgba(255,255,255,0.55);line-height:1.4;}
 .fade-in{animation:fadeUp 0.3s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* NEW FEATURES */
+.icon-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px;opacity:0.5;transition:all 0.2s;}
+.icon-btn:hover{opacity:1;transform:scale(1.15);}
+.icon-btn.active{opacity:1;filter:drop-shadow(0 0 3px gold);}
+.meal-notes{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.note-input{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;background:rgba(255,255,255,0.5);color:var(--ink);}
+.note-input:focus{outline:none;border-color:var(--sage);background:white;}
+
+/* SCHEDULE INPUTS */
+.sched-day-block{margin-bottom:12px;padding:10px;background:var(--cream);border-radius:8px;}
+.sched-day-title{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.sched-meal-row{display:grid;grid-template-columns:70px 1fr;gap:6px;margin-bottom:4px;align-items:center;}
+.sched-meal-label{font-size:10px;color:var(--muted);}
+.sched-meal-input{padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-family:'DM Sans',sans-serif;background:white;}
+
+/* GROCERY LIST */
+.grocery-category{margin-bottom:16px;}
+.grocery-cat-title{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--sage);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--sage-light);}
+.grocery-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;}
+.grocery-item input[type="checkbox"]{width:16px;height:16px;cursor:pointer;}
+.grocery-item label{flex:1;cursor:pointer;color:var(--ink);}
+.grocery-item input:checked + label{text-decoration:line-through;color:var(--muted);}
+
+/* PRINT STYLES */
+@media print{
+  header .btn-edit,.icon-btn,.recipe-btn,.meal-notes,.footer-banner{display:none!important;}
+  .days-row{display:none!important;}
+  body{background:white;}
+  .app{max-width:100%;padding:10px;}
+  .reco-card,.dc-card,.balance-card,.tip-card{break-inside:avoid;page-break-inside:avoid;}
+  .recipe-box{display:block!important;}
+  @page{margin:1cm;}
+}
 </style>
 </head>
 <body>
@@ -162,6 +196,39 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
   </div>
 </div>
 
+<!-- SCHOOL SCHEDULE MODAL -->
+<div class="modal-overlay" id="scheduleModal" style="display:none;">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-top"><div class="modal-icon">📋</div><h2>School Menu</h2></div>
+    <p class="modal-sub">Enter your school's menu for each day. This helps us plan complementary home meals.</p>
+
+    <div class="form-group">
+      <label class="form-label">Schedule repeats every</label>
+      <div class="chip-group" id="schedWeeksG">
+        <div class="chip-opt sel" data-v="1">1 week</div>
+        <div class="chip-opt" data-v="2">2 weeks</div>
+      </div>
+    </div>
+
+    <div id="scheduleInputs"></div>
+
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn-edit" style="flex:1;" onclick="closeScheduleModal()">Cancel</button>
+      <button class="btn-start" style="flex:2;" onclick="saveSchedule()">Save menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROCERY LIST MODAL -->
+<div class="modal-overlay" id="groceryModal" style="display:none;">
+  <div class="modal-box" style="max-width:550px;max-height:90vh;">
+    <div class="modal-top"><div class="modal-icon">🛒</div><h2>Shopping List</h2></div>
+    <p class="modal-sub">Week <span id="groceryWeek">1</span> ingredients • Check off as you shop</p>
+    <div id="groceryContent" style="max-height:60vh;overflow-y:auto;"></div>
+    <button class="btn-start" onclick="closeGroceryModal()">Done</button>
+  </div>
+</div>
+
 <!-- HEADER -->
 <header>
   <div class="logo">
@@ -172,6 +239,9 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
     <span class="week-badge" id="weekBadge">Week 1</span>
     <div class="date-display"><div class="day-name" id="dayName">—</div><div class="date-str" id="dateStr">—</div></div>
     <button class="btn-edit" onclick="openModal()">✏ Edit profile</button>
+    <button class="btn-edit" onclick="openScheduleModal()">📋 School menu</button>
+    <button class="btn-edit" onclick="openGroceryModal()">🛒 Shopping list</button>
+    <button class="btn-edit" onclick="printWeek()">🖨️ Print week</button>
   </div>
 </header>
 
@@ -197,7 +267,14 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
     <div style="font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" id="recoLbl">Today's home meals</div>
     <div class="reco-grid">
       <div class="reco-card bf fade-in">
-        <div class="rc-head"><div><div class="rc-type">🌅 Breakfast</div><div class="rc-title" id="bfT">—</div></div><div class="rc-icon">🍳</div></div>
+        <div class="rc-head">
+          <div><div class="rc-type">🌅 Breakfast</div><div class="rc-title" id="bfT">—</div></div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="icon-btn" id="bfFav" onclick="toggleFavorite('bf')" title="Mark as favorite">⭐</button>
+            <button class="icon-btn" onclick="swapMeal('bf')" title="Swap meal">🔄</button>
+            <div class="rc-icon">🍳</div>
+          </div>
+        </div>
         <div class="rc-motivation" id="bfM">—</div>
         <div class="rc-why" id="bfW">—</div>
         <div class="ntags" id="bfTags"></div>
@@ -205,9 +282,19 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
         <div class="recipe-box" id="bfRec"><div class="recipe-title" id="bfRT">—</div><ol class="recipe-steps" id="bfRS"></ol></div>
         <div class="alt-lbl">Can't make it? Try instead:</div>
         <div id="bfAlts"></div>
+        <div class="meal-notes">
+          <input type="text" class="note-input" id="bfNote" placeholder="Add a note (e.g., 'He loved this!')" onchange="saveMealNote('bf',this.value)"/>
+        </div>
       </div>
       <div class="reco-card dn fade-in">
-        <div class="rc-head"><div><div class="rc-type">🌙 Dinner</div><div class="rc-title" id="dnT">—</div></div><div class="rc-icon">🥘</div></div>
+        <div class="rc-head">
+          <div><div class="rc-type">🌙 Dinner</div><div class="rc-title" id="dnT">—</div></div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="icon-btn" id="dnFav" onclick="toggleFavorite('dn')" title="Mark as favorite">⭐</button>
+            <button class="icon-btn" onclick="swapMeal('dn')" title="Swap meal">🔄</button>
+            <div class="rc-icon">🥘</div>
+          </div>
+        </div>
         <div class="rc-motivation" id="dnM">—</div>
         <div class="rc-why" id="dnW">—</div>
         <div class="ntags" id="dnTags"></div>
@@ -215,6 +302,9 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
         <div class="recipe-box" id="dnRec"><div class="recipe-title" id="dnRT">—</div><ol class="recipe-steps" id="dnRS"></ol></div>
         <div class="alt-lbl">Can't make it? Try instead:</div>
         <div id="dnAlts"></div>
+        <div class="meal-notes">
+          <input type="text" class="note-input" id="dnNote" placeholder="Add a note (e.g., 'Too spicy next time')" onchange="saveMealNote('dn',this.value)"/>
+        </div>
       </div>
     </div>
 
@@ -239,12 +329,18 @@ header{background:var(--warm-white);border-bottom:1.5px solid var(--border);padd
 
 <script>
 let profile={name:'',age:'1-2',diet:'veg',cuisine:'balanced',allergies:'',loves:'',dislikes:'',school:''};
+let customSchedule=null;
+let mealNotes={};
+let favorites={};
+let mealSwaps={};
 
-['ageG','dietG','cuisineG'].forEach(g=>{
-  document.getElementById(g).addEventListener('click',e=>{
+['ageG','dietG','cuisineG','schedWeeksG'].forEach(g=>{
+  const el=document.getElementById(g);
+  if(el) el.addEventListener('click',e=>{
     const o=e.target.closest('.chip-opt');if(!o)return;
     document.querySelectorAll('#'+g+' .chip-opt').forEach(c=>c.classList.remove('sel'));
     o.classList.add('sel');
+    if(g==='schedWeeksG') buildScheduleInputs();
   });
 });
 
@@ -358,7 +454,36 @@ const meals={
 };
 
 function init(){
-  try{const s=localStorage.getItem('nourish_p');if(s){profile=JSON.parse(s);applyProfile();document.getElementById('onboardModal').style.display='none';}}catch(e){}
+  // Load all saved data
+  try{
+    const s=localStorage.getItem('nourish_p');
+    if(s){profile=JSON.parse(s);applyProfile();document.getElementById('onboardModal').style.display='none';}
+
+    const sched=localStorage.getItem('nourish_schedule');
+    if(sched) customSchedule=JSON.parse(sched);
+
+    const notes=localStorage.getItem('nourish_notes');
+    if(notes) mealNotes=JSON.parse(notes);
+
+    const favs=localStorage.getItem('nourish_favorites');
+    if(favs) favorites=JSON.parse(favs);
+
+    const swaps=localStorage.getItem('nourish_swaps');
+    if(swaps){
+      mealSwaps=JSON.parse(swaps);
+      // Apply saved swaps
+      Object.entries(mealSwaps).forEach(([key,targetKey])=>{
+        const [w1,d1,t1]=key.split('_');
+        const [w2,d2,t2]=targetKey.split('_');
+        if(meals[w1]?.[d1]?.[t1] && meals[w2]?.[d2]?.[t2]){
+          const temp=meals[w1][d1][t1];
+          meals[w1][d1][t1]=meals[w2][d2][t2];
+          meals[w2][d2][t2]=temp;
+        }
+      });
+    }
+  }catch(e){}
+
   const now=new Date();
   const d=now.getDay();
   dayIdx=(d>=1&&d<=5)?d-1:0;
@@ -384,7 +509,11 @@ function buildDays(){
 
 function renderAll(){
   const day=DAYS[dayIdx];
-  const dc=schedule[week][day];
+
+  // Use custom schedule if available, otherwise default
+  const activeSchedule=customSchedule||schedule;
+  const dc=activeSchedule[week]?.[day]||{am:'—',lunch:'—',pm:'—'};
+
   document.getElementById('dcDay').textContent=day;
   document.getElementById('dcWeek').textContent=week;
   document.getElementById('weekBadge').textContent='Week '+week;
@@ -407,6 +536,9 @@ function renderAll(){
   document.querySelectorAll('.recipe-btn').forEach(b=>b.textContent='Show quick recipe ▾');
 
   setBars(p.nut);setText('tipText',p.tip);
+
+  // Load favorites and notes
+  loadMealMeta();
 }
 
 function setText(id,v){document.getElementById(id).textContent=v;}
@@ -433,6 +565,208 @@ function setBars(nut){
     <div class="b-track"><div class="b-fill" style="width:${v}%;background:${colors[k]}"></div></div>
     <span class="b-pct">${v}%</span></div>`).join('');
 }
+
+// ═══════════════════════════════════════════════════════════
+// NEW FEATURES
+// ═══════════════════════════════════════════════════════════
+
+// CUSTOM SCHOOL SCHEDULE
+function openScheduleModal(){
+  buildScheduleInputs();
+  document.getElementById('scheduleModal').style.display='flex';
+}
+
+function closeScheduleModal(){
+  document.getElementById('scheduleModal').style.display='none';
+}
+
+function buildScheduleInputs(){
+  const numWeeks=parseInt(document.querySelector('#schedWeeksG .chip-opt.sel')?.dataset.v||'1');
+  const wrap=document.getElementById('scheduleInputs');
+  let html='';
+
+  for(let w=1;w<=numWeeks;w++){
+    if(numWeeks>1) html+=`<div style="font-size:11px;font-weight:600;margin:12px 0 8px;color:var(--sage);">Week ${w}</div>`;
+    DAYS.forEach(day=>{
+      const existing=(customSchedule||schedule)[w]?.[day];
+      html+=`<div class="sched-day-block">
+        <div class="sched-day-title">${day}</div>
+        <div class="sched-meal-row">
+          <span class="sched-meal-label">AM Snack</span>
+          <input class="sched-meal-input" id="w${w}_${day}_am" value="${existing?.am||''}" placeholder="e.g. Crackers, fruit"/>
+        </div>
+        <div class="sched-meal-row">
+          <span class="sched-meal-label">Lunch</span>
+          <input class="sched-meal-input" id="w${w}_${day}_lunch" value="${existing?.lunch||''}" placeholder="e.g. Pasta, vegetables"/>
+        </div>
+        <div class="sched-meal-row">
+          <span class="sched-meal-label">PM Snack</span>
+          <input class="sched-meal-input" id="w${w}_${day}_pm" value="${existing?.pm||''}" placeholder="e.g. Yogurt, berries"/>
+        </div>
+      </div>`;
+    });
+  }
+  wrap.innerHTML=html;
+}
+
+function saveSchedule(){
+  const numWeeks=parseInt(document.querySelector('#schedWeeksG .chip-opt.sel')?.dataset.v||'1');
+  customSchedule={};
+
+  for(let w=1;w<=numWeeks;w++){
+    customSchedule[w]={};
+    DAYS.forEach(day=>{
+      customSchedule[w][day]={
+        am:document.getElementById(`w${w}_${day}_am`)?.value||'—',
+        lunch:document.getElementById(`w${w}_${day}_lunch`)?.value||'—',
+        pm:document.getElementById(`w${w}_${day}_pm`)?.value||'—'
+      };
+    });
+  }
+
+  try{localStorage.setItem('nourish_schedule',JSON.stringify(customSchedule));}catch(e){}
+  closeScheduleModal();
+  renderAll();
+}
+
+// GROCERY LIST
+function openGroceryModal(){
+  document.getElementById('groceryWeek').textContent=week;
+  generateGroceryList();
+  document.getElementById('groceryModal').style.display='flex';
+}
+
+function closeGroceryModal(){
+  document.getElementById('groceryModal').style.display='none';
+}
+
+function generateGroceryList(){
+  const ingredients={
+    'Produce':[],
+    'Dairy & Eggs':[],
+    'Grains & Carbs':[],
+    'Protein':[],
+    'Pantry':[],
+    'Other':[]
+  };
+
+  // Extract ingredients from all meals in the week
+  DAYS.forEach(day=>{
+    const p=meals[week][day];
+    if(p?.bf?.rec?.s) extractIngredients(p.bf.rec.s,ingredients);
+    if(p?.dn?.rec?.s) extractIngredients(p.dn.rec.s,ingredients);
+  });
+
+  // Load checked state
+  const checked=JSON.parse(localStorage.getItem('nourish_grocery_'+week)||'{}');
+
+  let html='';
+  Object.entries(ingredients).forEach(([cat,items])=>{
+    if(items.length===0) return;
+    const uniqueItems=[...new Set(items)];
+    html+=`<div class="grocery-category">
+      <div class="grocery-cat-title">${cat}</div>`;
+    uniqueItems.forEach((item,i)=>{
+      const id=`g_${cat}_${i}`;
+      html+=`<div class="grocery-item">
+        <input type="checkbox" id="${id}" ${checked[id]?'checked':''} onchange="saveGroceryCheck('${id}',this.checked)"/>
+        <label for="${id}">${item}</label>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+
+  document.getElementById('groceryContent').innerHTML=html;
+}
+
+function extractIngredients(steps,ingredients){
+  const produceWords=['banana','apple','orange','berries','mango','grapes','avocado','tomato','onion','carrot','peas','broccoli','cucumber','potato','sweet potato','spinach','beans','corn'];
+  const dairyWords=['milk','yogurt','cheese','paneer','cream','butter','ghee'];
+  const grainWords=['oats','rice','bread','pasta','chapati','roti','paratha','dosa','idli','semolina','rava','poha'];
+  const proteinWords=['egg','chicken','fish','dal','lentil','moong','masoor','toor','rajma','tofu'];
+  const pantryWords=['oil','salt','cumin','turmeric','mustard','curry leaves','honey','jaggery','soy sauce'];
+
+  steps.forEach(step=>{
+    const lower=step.toLowerCase();
+    produceWords.forEach(w=>{if(lower.includes(w)) ingredients['Produce'].push(w.charAt(0).toUpperCase()+w.slice(1));});
+    dairyWords.forEach(w=>{if(lower.includes(w)) ingredients['Dairy & Eggs'].push(w.charAt(0).toUpperCase()+w.slice(1));});
+    grainWords.forEach(w=>{if(lower.includes(w)) ingredients['Grains & Carbs'].push(w.charAt(0).toUpperCase()+w.slice(1));});
+    proteinWords.forEach(w=>{if(lower.includes(w)) ingredients['Protein'].push(w.charAt(0).toUpperCase()+w.slice(1));});
+    pantryWords.forEach(w=>{if(lower.includes(w)) ingredients['Pantry'].push(w.charAt(0).toUpperCase()+w.slice(1));});
+  });
+}
+
+function saveGroceryCheck(id,checked){
+  const data=JSON.parse(localStorage.getItem('nourish_grocery_'+week)||'{}');
+  if(checked) data[id]=true;
+  else delete data[id];
+  localStorage.setItem('nourish_grocery_'+week,JSON.stringify(data));
+}
+
+// FAVORITES & NOTES
+function toggleFavorite(type){
+  const key=`${week}_${DAYS[dayIdx]}_${type}`;
+  favorites[key]=!favorites[key];
+  try{localStorage.setItem('nourish_favorites',JSON.stringify(favorites));}catch(e){}
+  document.getElementById(type+'Fav').classList.toggle('active',favorites[key]);
+}
+
+function saveMealNote(type,note){
+  const key=`${week}_${DAYS[dayIdx]}_${type}`;
+  if(note.trim()) mealNotes[key]=note;
+  else delete mealNotes[key];
+  try{localStorage.setItem('nourish_notes',JSON.stringify(mealNotes));}catch(e){}
+}
+
+function loadMealMeta(){
+  const day=DAYS[dayIdx];
+  ['bf','dn'].forEach(type=>{
+    const key=`${week}_${day}_${type}`;
+    document.getElementById(type+'Fav').classList.toggle('active',!!favorites[key]);
+    document.getElementById(type+'Note').value=mealNotes[key]||'';
+  });
+}
+
+// MEAL SWAP
+function swapMeal(type){
+  const currentDay=DAYS[dayIdx];
+  const currentWeek=week;
+  const otherDays=DAYS.filter(d=>d!==currentDay);
+
+  const msg=`Swap ${type==='bf'?'breakfast':'dinner'} with which day?\n\n`+
+    otherDays.map((d,i)=>`${i+1}. ${d}`).join('\n')+
+    `\n\nEnter number (1-${otherDays.length}) or cancel:`;
+
+  const choice=prompt(msg);
+  if(!choice) return;
+
+  const idx=parseInt(choice)-1;
+  if(idx<0||idx>=otherDays.length){
+    alert('Invalid choice');
+    return;
+  }
+
+  const targetDay=otherDays[idx];
+
+  // Swap meals
+  const temp=meals[currentWeek][currentDay][type];
+  meals[currentWeek][currentDay][type]=meals[currentWeek][targetDay][type];
+  meals[currentWeek][targetDay][type]=temp;
+
+  // Track swap for persistence
+  mealSwaps[`${currentWeek}_${currentDay}_${type}`]=`${currentWeek}_${targetDay}_${type}`;
+  mealSwaps[`${currentWeek}_${targetDay}_${type}`]=`${currentWeek}_${currentDay}_${type}`;
+  try{localStorage.setItem('nourish_swaps',JSON.stringify(mealSwaps));}catch(e){}
+
+  renderAll();
+  alert(`Swapped ${type==='bf'?'breakfast':'dinner'} with ${targetDay}!`);
+}
+
+// PRINT
+function printWeek(){
+  window.print();
+}
+
 init();
 </script>
 </body>
